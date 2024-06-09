@@ -1,6 +1,6 @@
 ```mermaid
     sequenceDiagram
-       broswer->>server: POST request with note content;
+       brower->>server: POST request with note content;
        browser->>server: GET request main.css;
        server->>browser: main.css file sent back;
        browser->>server: GET main.js;
