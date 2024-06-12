@@ -3,7 +3,7 @@ const DisplayData = ({ filtered }) => {
         <>
             <h2>Numbers</h2>
             <ul>
-                {filtered.map((person) => <li>{person.name} {person.number}</li>)}
+                {filtered.map((person) => <li key={person.id}>{person.name} {person.number}</li>)}
             </ul>
         </>
     )
