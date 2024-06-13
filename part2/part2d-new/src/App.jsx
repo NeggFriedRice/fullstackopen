@@ -28,8 +28,8 @@ const App = () => {
     // getNotes()
     // getNotes is now replaced with services from notes.js
     noteService.getAll()
-      .then(response => {
-        setNotes(response.data)
+      .then(initialNotes => {
+        setNotes(initialNotes)
       })
   }, [])
   console.log('render', notes.length, 'notes')
@@ -51,8 +51,8 @@ const App = () => {
     // })
     // Replace above function with service from notes.js
     noteService.create(noteObject)
-      .then((response) => {
-        setNotes(notes.concat(response.data))
+      .then((returnedNote) => {
+        setNotes(notes.concat(returnedNote))
         setNewNote("")
       })
   }
@@ -79,9 +79,13 @@ const App = () => {
     // })
     // Replace above function with service from notes.js
     noteService.update(id, changedNote)
-      .then((response) => {
-        setNotes(notes.map(note => note.id !== id ? note : response.data))
+      .then((returnedNote) => {
+        setNotes(notes.map(note => note.id !== id ? note : returnedNote))
       })
+      .catch((error) => {
+        alert(`The note ${note.content} was already deleted from the server`)
+      })
+      setNotes(notes.filter(note => note.id !== id))
   }
 
   return (
