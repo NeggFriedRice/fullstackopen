@@ -13,13 +13,17 @@ const App = () => {
   const [searchPerson, setSearchPerson] = useState("")
   const [filtered, setFiltered] = useState(persons)
 
-  useEffect(() => {
+  const getPersons = () => {
     axios
     .get('http://localhost:3001/persons')
     .then(response => {
       console.log(response.data)
       setPersons(response.data)
     })
+  }
+
+  useEffect(() => {
+    getPersons()
   }, [])
 
   const handleInputChange = (event) => {
@@ -35,7 +39,22 @@ const App = () => {
       setNewName("")
       return
     } else {
-      setPersons(persons.concat({name: newName, number: newNumber}))
+      // Pre-2.12 exercise
+      // setPersons(persons.concat({name: newName, number: newNumber}))
+
+      // We want to add a new person and their number to the web server
+
+      // First create the person object
+      const newEntry = {
+        name: newName,
+        number: newNumber
+      }
+      axios
+        .post('http://localhost:3001/persons', newEntry)
+        .then(response => {
+          console.log(response.data)
+          setPersons(persons.concat(response.data))
+        })
     }
   }
 
