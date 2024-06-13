@@ -5,21 +5,27 @@ import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import { useEffect } from 'react'
 import axios from 'axios'
+import personService from './services/persons'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [searchPerson, setSearchPerson] = useState("")
-  const [filtered, setFiltered] = useState(persons)
+  const [filtered, setFiltered] = useState([])
 
   const getPersons = () => {
-    axios
-    .get('http://localhost:3001/persons')
-    .then(response => {
-      console.log(response.data)
-      setPersons(response.data)
-    })
+
+    // axios
+    // .get('http://localhost:3001/persons')
+    // .then(response => {
+    //   console.log(response.data)
+    //   setPersons(response.data)
+    // })
+    // Above code replaced with personService from persons.js
+
+    personService.getAll()
+    .then(listOfPersons => setPersons(listOfPersons))
   }
 
   useEffect(() => {
@@ -49,11 +55,17 @@ const App = () => {
         name: newName,
         number: newNumber
       }
-      axios
-        .post('http://localhost:3001/persons', newEntry)
+      // axios
+      //   .post('http://localhost:3001/persons', newEntry)
+      //   .then(response => {
+      //     console.log(response.data)
+      //     setPersons(persons.concat(response.data))
+      //   })
+      // Above code replaced by personService.js
+      personService.addPerson(newEntry)
         .then(response => {
-          console.log(response.data)
-          setPersons(persons.concat(response.data))
+          console.log("Person added")
+          setPersons(persons.concat(response))
         })
     }
   }
@@ -73,12 +85,27 @@ const App = () => {
     setFiltered(filterItems)
   }
 
+  const deletePerson = (id) => {
+    console.log(id)
+    personService.deletePerson(id)
+      .then(response => {
+        console.log(response)
+        setPersons(persons.filter((person) => person.id !== id))
+      })
+    
+  }
+
   return (
     <div>
       <h2>Phonebook</h2>
       <Filter handleSearchPerson={handleSearchPerson} searchPerson={searchPerson}/>
       <PersonForm handleSubmit={handleSubmit} handleInputChange={handleInputChange} handleNumberChange={handleNumberChange} newName={newName} newNumber={newNumber}/>
-      <DisplayData filtered={filtered}/>      
+      <DisplayData 
+      searchPerson={searchPerson} 
+      persons={persons} 
+      filtered={filtered}
+      deletePerson={deletePerson}
+      />      
     </div>
   )
 }
