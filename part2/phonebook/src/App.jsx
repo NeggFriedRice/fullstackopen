@@ -6,6 +6,7 @@ import PersonForm from './components/PersonForm'
 import { useEffect } from 'react'
 import axios from 'axios'
 import personService from './services/persons'
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -13,6 +14,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [searchPerson, setSearchPerson] = useState("")
   const [filtered, setFiltered] = useState([])
+  const [notif, setNotif] = useState(null)
 
   const getPersons = () => {
 
@@ -78,9 +80,14 @@ const App = () => {
       // Above code replaced by personService.js
       personService.addPerson(newEntry)
         .then(response => {
+          setNotif(`${response.name} added to phonebook`)
           console.log("Person added")
           setPersons(persons.concat(response))
         })
+
+      setTimeout(() => {
+        setNotif(null)
+      }, 5000)
     }
   }
 
@@ -111,7 +118,8 @@ const App = () => {
 
   return (
     <div>
-      <h2>Phonebook</h2>
+      <h1>Phonebook</h1>
+      <Notification notif={notif}/>
       <Filter handleSearchPerson={handleSearchPerson} searchPerson={searchPerson}/>
       <PersonForm handleSubmit={handleSubmit} handleInputChange={handleInputChange} handleNumberChange={handleNumberChange} newName={newName} newNumber={newNumber}/>
       <DisplayData 

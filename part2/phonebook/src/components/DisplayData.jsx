@@ -3,7 +3,7 @@ const DisplayData = ({ searchPerson, persons, filtered, deletePerson }) => {
     return (
 
         <>
-            <h2>Numbers</h2>
+            <h1>Numbers</h1>
             <ul>
                 {/* {filtered.map((person) => <li key={person.id}>{person.name} {person.number}</li>)} */}
 
