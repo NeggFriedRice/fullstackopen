@@ -2,6 +2,7 @@ import { useState } from 'react'
 import './App.css'
 import { useEffect } from 'react'
 import axios from 'axios'
+import ShowCountries from './components/ShowCountries'
 
 function App() {
   const [countries, setCountries] = useState([])
@@ -32,9 +33,7 @@ function App() {
     <>
     <div>find countries<input onChange={handleSearch} value={searchTerm}></input></div>
     <ul>
-      {filtered.length > 10
-      ? <p>Too many matches, make your filter more specific</p>
-      : filtered.map((country) => {return <li key={country.name.common}>{country.name.common}</li>})}
+      <ShowCountries filtered={filtered}/>
     </ul>
     </>
   )
