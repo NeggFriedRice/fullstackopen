@@ -15,6 +15,7 @@ const App = () => {
   const [searchPerson, setSearchPerson] = useState("")
   const [filtered, setFiltered] = useState([])
   const [notif, setNotif] = useState(null)
+  const [error, setError] = useState(null)
 
   const getPersons = () => {
 
@@ -80,6 +81,7 @@ const App = () => {
       // Above code replaced by personService.js
       personService.addPerson(newEntry)
         .then(response => {
+          setError(false)
           setNotif(`${response.name} added to phonebook`)
           console.log("Person added")
           setPersons(persons.concat(response))
@@ -87,6 +89,7 @@ const App = () => {
 
       setTimeout(() => {
         setNotif(null)
+        setError(null)
       }, 5000)
     }
   }
@@ -113,13 +116,25 @@ const App = () => {
         console.log(response)
         setPersons(persons.filter((person) => person.id !== id))
       })
+      .catch((error) => {
+
+        const deletedPerson = persons.find((person) => person.id === id)
+        console.log(deletedPerson.name)
+        setError(true)
+        setNotif(`${deletedPerson.name} has already been deleted`)
+      })
+
+      setTimeout(() => {
+        setError(null)
+        setNotif(null)
+      }, 3000)
     
   }
 
   return (
     <div>
       <h1>Phonebook</h1>
-      <Notification notif={notif}/>
+      <Notification notif={notif} error={error}/>
       <Filter handleSearchPerson={handleSearchPerson} searchPerson={searchPerson}/>
       <PersonForm handleSubmit={handleSubmit} handleInputChange={handleInputChange} handleNumberChange={handleNumberChange} newName={newName} newNumber={newNumber}/>
       <DisplayData 
