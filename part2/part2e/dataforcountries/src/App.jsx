@@ -7,7 +7,7 @@ import ShowCountries from './components/ShowCountries'
 function App() {
   const [countries, setCountries] = useState([])
   const [searchTerm, setSearchTerm] = useState("")
-  const [filtered, setFiltered] = useState([])
+  const [filtered, setFiltered] = useState(countries)
 
   const getData = () => {
     axios
@@ -33,7 +33,7 @@ function App() {
     <>
     <div>find countries<input onChange={handleSearch} value={searchTerm}></input></div>
     <ul>
-      <ShowCountries filtered={filtered}/>
+      <ShowCountries filtered={filtered} setFiltered={setFiltered}/>
     </ul>
     </>
   )
