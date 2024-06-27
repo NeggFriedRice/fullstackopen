@@ -80,6 +80,10 @@ app.delete('/api/persons/:id', (request, response, next) => {
 // Add a new person
 app.post('/api/persons', (request, response, next) => {
 
+    // const number = request.body.number
+    // const splitNum = number.split('-')
+    // if (splitNum.length < 2 || splitNum.length > 2) {}
+
     
     const body = request.body
 
@@ -127,6 +131,10 @@ const errorHandler = (error, request, response, next) => {
 
     if (error.name === 'CastError') {
         return response.status(400).send({error: 'Malformatted ID'})
+    }
+
+    if (error.name === 'ValidationError') {
+        return response.status(400).send({error: error.message})
     }
 }
 
