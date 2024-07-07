@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const morgan = require('morgan')
 const cors = require('cors')
+const Person = require('./models/person')
 
 app.use(express.json())
 
@@ -48,83 +49,102 @@ app.use(requestLogger)
 
 
 app.get('/api/persons', (request, response) => {
-    response.json(persons)
+    Person.find({}).then(persons => {
+        response.json(persons)
+    })
 })
 
 // GET request info page
 app.get('/info', (request, response) => {
-    const now = Date()
-    response.send(`<p>Phonebook has info for ${persons.length} people</p><p>${now}</p>`
-    )
+    Person.find({})
+        .then(persons => {
+            const now = Date()
+            response.send(`<p>Phonebook has info for ${persons.length} people</p><p>${now}</p>`)
+        })
 })
 
 // GET request single person
-app.get('/api/persons/:id', (request, response) => {
-    // Need to convert param to Number
-    const id = Number(request.params.id)
-    const selectedPerson = persons.find(person => person.id === id)
-
-    if (!selectedPerson) {
-        return response.send(404).end()
-    }
-
-    console.log(selectedPerson)
-    response.json(selectedPerson)
+app.get('/api/persons/:id', (request, response, next) => {
+    Person.findById(request.params.id)
+        .then(person => response.json(person))
+        .catch(error => next(error))
 })
 
 // Delete request single person
-app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    const selectedPerson = persons.find(person => person.id === id)
-
-    if (!selectedPerson) {
-        return response.status(404).end()
-    }
-
-    persons = persons.filter(person => person.id !== id)
-
-    response.status(204).end()
+app.delete('/api/persons/:id', (request, response, next) => {
+    Person.findByIdAndDelete(request.params.id)
+        .then(result => response.status(200).end())
+        .catch(error => next(error))
 })
 
 // Add a new person
-app.post('/api/persons', (request, response) => {
-    // Get the body from the request, make sure express.json() is added
+app.post('/api/persons', (request, response, next) => {
+
+    // const number = request.body.number
+    // const splitNum = number.split('-')
+    // if (splitNum.length < 2 || splitNum.length > 2) {}
+
+    
     const body = request.body
 
-    console.log(body.name)
-
-    const duplicateName = persons.find(person => person.name === body.name)
-
-
-    // Check there is content in the body of the request
-    if (!body.name || !body.number ) {
-        return response.status(400).json({
-            error: "No content in request"
-        })
-    } else if (duplicateName) {
-        return response.status(400).json({
-            error: "Name must be unique"
+    if (!body) {
+        response.status(400).json({
+            message: "Content missing"
         })
     }
 
-    // Create new note object
-    const newPerson = {
-        name: body.name,
-        number: body.number,
-        id: persons.length + 1
-    }
+    // Exercise 3.16
+    Person.findOne({name: body.name})
+        .then(existingPerson => {
+            if (existingPerson) {
+                const updatedPerson = {
+                    name: existingPerson.name,
+                    number: body.number
+                }
 
-    // Add new person to the existing array
-    persons = persons.concat(newPerson)
+                Person.findByIdAndUpdate(existingPerson._id, updatedPerson, {new: true})
+                    .then(updatedPerson => {
+                        response.json(updatedPerson)
+                    })
+                    .catch(error => next(error))
+            } else {
+                const newPerson = new Person({
+                    name: body.name,
+                    number: body.number
+                })
+                newPerson.save()
+                    .then(savedPerson => response.json(savedPerson))
+                    .catch(error => next(error))
+                
+            }
+        })
 
-    // Send response with status and message
-    response.status(201).json({
-        message: "New person added"
-    })
+
+
+    // person.save().then(person => response.json(person))
 
 
 })
 
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+
+    if (error.name === 'CastError') {
+        return response.status(400).send({error: 'Malformatted ID'})
+    }
+
+    if (error.name === 'ValidationError') {
+        return response.status(400).send({error: error.message})
+    }
+}
+
+app.use(errorHandler)
+
+const unknownEndpoint = (request, response) => {
+    response.status(400).json({error: 'Unknown endpoint'})
+}
+
+app.use(unknownEndpoint)
 const PORT = 3001
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)

@@ -11,7 +11,7 @@ const getAll = () => {
 // POST request
 const addPerson = (newPerson) => {
     const request = axios.post(baseUrl, newPerson)
-    return request.then((response) => response.data)
+    return request.then((response) => response.data).catch(error => console.log(error.response.data.error))
 }
 
 // PUT request
