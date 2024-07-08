@@ -48,6 +48,55 @@ test('each post has a unique identifier property "id"', async () => {
   });
 });
 
+test('check if the likes property is missing', async () => {
+  const newBlog = {
+    title: "No likes test",
+    author: "Test",
+    url: "www.nolikestest.com"
+  }
+
+  await api
+  .post("/api/blogs")
+  .send(newBlog)
+  .expect(201)
+  .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+
+  assert.strictEqual(response.body.length, initialBlogs.length + 1)
+
+})
+
+test('adds a new post to the data base', async () => {
+  const newBlog = {
+    title: "NewBlog",
+    author: "Ronald",
+    url: "www.blogtest.com",
+    likes: 10
+  }
+
+  await api
+    .post("/api/blogs")
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+
+  assert.strictEqual(response.body.length, initialBlogs.length + 1)
+})
+
+test('title or url must be defined', async () => {
+  const newBlog = {
+    author: "No title or url",
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+})
+
 after(async () => {
   await mongoose.connection.close();
 });
