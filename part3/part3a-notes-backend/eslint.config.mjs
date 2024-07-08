@@ -26,10 +26,9 @@ export default [
         'error',
         'unix'
       ],
-      '@stylistic/js/quotes': [
-        'error',
-        'single'
-      ],
+      // '@stylistic/js/quotes': [
+      //   'error'
+      // ],
       '@stylistic/js/semi': [
         'error',
         'never'

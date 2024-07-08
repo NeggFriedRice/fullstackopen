@@ -18,12 +18,12 @@ notesRouter.get("/:id", async (request, response, next) => {
   //   })
   //   .catch((error) => next(error));
 
-    const note = await Note.findById(request.params.id);
-    if (note) {
-      response.json(note);
-    } else {
-      response.status(404).end();
-    }
+  const note = await Note.findById(request.params.id);
+  if (note) {
+    response.json(note);
+  } else {
+    response.status(404).end();
+  }
 });
 
 notesRouter.post("/", async (request, response, next) => {
@@ -34,8 +34,8 @@ notesRouter.post("/", async (request, response, next) => {
     important: body.important || false,
   });
 
-    const savedNote = await note.save();
-    response.status(201).json(savedNote);
+  const savedNote = await note.save();
+  response.status(201).json(savedNote);
 });
 
 notesRouter.delete("/:id", async (request, response, next) => {
