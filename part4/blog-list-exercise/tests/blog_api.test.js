@@ -97,6 +97,15 @@ test('title or url must be defined', async () => {
     .expect(400)
 })
 
+test('a post can be deleted', async () => {
+  const blogToDelete = initialBlogs[0]
+
+  await api
+    .delete(`/api/blogs/${blogToDelete.id}`)
+    .expect(204)
+
+} )
+
 after(async () => {
   await mongoose.connection.close();
 });
