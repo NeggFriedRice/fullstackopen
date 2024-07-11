@@ -51,17 +51,19 @@ describe("when there is initially one user in db", () => {
       password: "salainen",
     };
 
-    const result = api
+    const result = await api
       .post("/api/users")
       .send(newUser)
       .expect(400)
       .expect("Content-Type", /application\/json/);
 
-    console.log(result.body)
 
     const usersAtEnd = await helper.usersInDb();
+    console.log(result.body)
     assert(result.body.error.includes("expected `username` to be unique"));
 
     assert.strictEqual(usersAtStart.length, usersAtEnd.length);
   });
+
+  
 });
