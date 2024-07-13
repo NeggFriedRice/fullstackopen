@@ -2,48 +2,51 @@ import { useState, useEffect } from "react";
 import Blog from "./components/Blog";
 import blogService from "./services/blogs";
 import loginServices from "./services/login";
+import axios from "axios";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [newBlog, setNewBlog] = useState({
+    title: "",
+    author: "",
+    url: "",
+  });
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
   }, []);
 
   useEffect(() => {
-    const loggedInUser = window.localStorage.getItem('loggedBlogappUser')
+    const loggedInUser = window.localStorage.getItem("loggedBlogappUser");
     if (loggedInUser) {
-      const user = JSON.parse(loggedInUser)
-      setUser(user)
-      blogService.setToken(user.token)
+      const user = JSON.parse(loggedInUser);
+      setUser(user);
+      blogService.setToken(user.token);
     }
-  }, [])
+  }, []);
 
   const handleLogin = async (event) => {
     event.preventDefault();
 
     try {
-      const user = await loginServices.login({username, password})
-      console.log(user)
+      const user = await loginServices.login({ username, password });
+      console.log(user);
 
-      window.localStorage.setItem(
-        'loggedBlogappUser', JSON.stringify(user)
-      )
+      window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user));
 
-      blogService.setToken(user.token)
-      setUser(user)
-      setUsername("")
-      setPassword("")
+      blogService.setToken(user.token);
+      setUser(user);
+      setUsername("");
+      setPassword("");
     } catch (error) {
-      setErrorMessage("Wrong credentials")
+      setErrorMessage("Wrong credentials");
       setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
-
+        setErrorMessage(null);
+      }, 5000);
     }
   };
 
@@ -71,12 +74,11 @@ const App = () => {
   );
 
   const handleLogout = (event) => {
-    window.localStorage.removeItem('loggedBlogappUser')
-  }
+    window.localStorage.removeItem("loggedBlogappUser");
+  };
 
   const blogsDisplay = () => (
     <div>
-
       <h2>blogs</h2>
       <h1>{user.username} is logged in</h1>
       <button onClick={handleLogout}>logout</button>
@@ -86,7 +88,50 @@ const App = () => {
     </div>
   );
 
-  return <div>{!user ? loginForm() : blogsDisplay()}</div>;
+  const handleChange = (event) => {
+    setNewBlog((previousBlog) => ({
+      ...previousBlog,
+      [event.target.name]: event.target.value,
+    }));
+    console.log(newBlog);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const storageToken = JSON.parse(
+      window.localStorage.getItem("loggedBlogappUser")
+    );
+    const token = storageToken.token;
+    console.log(token);
+    const response = axios.post("http://localhost:3003/api/blogs", newBlog, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(response.data);
+  };
+
+  const blogForm = () => (
+    <>
+      <h1>create new blog</h1>
+      <form onSubmit={handleSubmit}>
+        <p>title:</p>
+        <input name="title" value={newBlog.title} onChange={handleChange} />
+        <p>author:</p>
+        <input name="author" value={newBlog.author} onChange={handleChange} />
+        <p>url:</p>
+        <input name="url" value={newBlog.url} onChange={handleChange} />
+        <button type="submit">save new blog</button>
+      </form>
+    </>
+  );
+
+  return (
+    <div>
+      {!user ? loginForm() : blogsDisplay()}
+      {user ? blogForm() : null}
+    </div>
+  );
 };
 
 export default App;
