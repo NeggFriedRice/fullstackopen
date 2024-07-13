@@ -16,6 +16,8 @@ const App = () => {
     url: "",
   });
 
+  const [notification, setNotification] = useState(null)
+
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
   }, []);
@@ -28,6 +30,12 @@ const App = () => {
       blogService.setToken(user.token);
     }
   }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setNotification(null)
+    }, 5000)
+  }, [notification])
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -96,23 +104,25 @@ const App = () => {
     console.log(newBlog);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const storageToken = JSON.parse(
       window.localStorage.getItem("loggedBlogappUser")
     );
     const token = storageToken.token;
     console.log(token);
-    const response = axios.post("http://localhost:3003/api/blogs", newBlog, {
+    const response = await axios.post("http://localhost:3003/api/blogs", newBlog, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log(response.data);
+    console.log(response.data)
+    setNotification(`A new blog ${response.data.title} by ${response.data.author} added`)
   };
 
   const blogForm = () => (
     <>
+    <h3 style={{text: 'green'}}>{notification}</h3>
       <h1>create new blog</h1>
       <form onSubmit={handleSubmit}>
         <p>title:</p>
