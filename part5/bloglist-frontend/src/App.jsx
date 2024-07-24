@@ -3,20 +3,20 @@ import Blog from "./components/Blog";
 import blogService from "./services/blogs";
 import loginServices from "./services/login";
 import axios from "axios";
+import LoginForm from "./components/LoginForm";
+import NewBlog from "./components/NewBlog";
 
 const App = () => {
+  const [loginVisible, setLoginVisible] = useState(false);
+  const [blogFormVisible, setBlogFormVisible] = useState(false);
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [newBlog, setNewBlog] = useState({
-    title: "",
-    author: "",
-    url: "",
-  });
 
-  const [notification, setNotification] = useState(null)
+
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -33,9 +33,9 @@ const App = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      setNotification(null)
-    }, 5000)
-  }, [notification])
+      setNotification(null);
+    }, 5000);
+  }, [notification]);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -58,28 +58,28 @@ const App = () => {
     }
   };
 
-  const loginForm = () => (
-    <form onSubmit={handleLogin}>
+  const loginForm = () => {
+    const hideWhenVisible = { display: loginVisible ? "none" : "" };
+    const showWhenVisible = { display: loginVisible ? "" : "none" };
+
+    return (
       <div>
-        Username
-        <input
-          value={username}
-          onChange={(event) => setUsername(event.target.value)}
-        />
+        <div style={hideWhenVisible}>
+          <button onClick={() => setLoginVisible(true)}>log in</button>
+        </div>
+        <div style={showWhenVisible}>
+          <LoginForm
+            username={username}
+            password={password}
+            handleSubmit={handleLogin}
+            handleUsernameChange={({ target }) => setUsername(target.value)}
+            handlePasswordChange={({ target }) => setPassword(target.value)}
+          />
+        </div>
+        <button onClick={() => setLoginVisible(false)}>cancel</button>
       </div>
-      <div>
-        Password
-        <input
-          value={password}
-          type="password"
-          onChange={(event) => setPassword(event.target.value)}
-        />
-      </div>
-      <div>
-        <button type="submit">login</button>
-      </div>
-    </form>
-  );
+    );
+  };
 
   const handleLogout = (event) => {
     window.localStorage.removeItem("loggedBlogappUser");
@@ -96,45 +96,30 @@ const App = () => {
     </div>
   );
 
-  const handleChange = (event) => {
-    setNewBlog((previousBlog) => ({
-      ...previousBlog,
-      [event.target.name]: event.target.value,
-    }));
-    console.log(newBlog);
-  };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const storageToken = JSON.parse(
-      window.localStorage.getItem("loggedBlogappUser")
+
+  const blogForm = () => {
+    const hideWhenVisible = { display: blogFormVisible ? "none" : "" };
+    const showWhenVisible = { display: blogFormVisible ? "" : "none" };
+
+    return (
+      <>
+        <h3 style={{ text: "green" }}>{notification}</h3>
+        <div style={hideWhenVisible}>
+          <button onClick={() => setBlogFormVisible(true)}>create new blog</button>
+        </div>
+        <div style={showWhenVisible}>
+          <NewBlog 
+          notification={notification}
+          setBlogFormVisible={setBlogFormVisible}
+          setNotification={setNotification}
+          setBlogs={setBlogs}
+          />
+          <button onClick={() => setBlogFormVisible(false)}>cancel</button>
+        </div>
+      </>
     );
-    const token = storageToken.token;
-    console.log(token);
-    const response = await axios.post("http://localhost:3003/api/blogs", newBlog, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    console.log(response.data)
-    setNotification(`A new blog ${response.data.title} by ${response.data.author} added`)
   };
-
-  const blogForm = () => (
-    <>
-    <h3 style={{text: 'green'}}>{notification}</h3>
-      <h1>create new blog</h1>
-      <form onSubmit={handleSubmit}>
-        <p>title:</p>
-        <input name="title" value={newBlog.title} onChange={handleChange} />
-        <p>author:</p>
-        <input name="author" value={newBlog.author} onChange={handleChange} />
-        <p>url:</p>
-        <input name="url" value={newBlog.url} onChange={handleChange} />
-        <button type="submit">save new blog</button>
-      </form>
-    </>
-  );
 
   return (
     <div>
