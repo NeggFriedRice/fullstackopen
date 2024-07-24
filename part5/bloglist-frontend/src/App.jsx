@@ -15,7 +15,6 @@ const App = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-
   const [notification, setNotification] = useState(null);
 
   useEffect(() => {
@@ -91,12 +90,21 @@ const App = () => {
       <h1>{user.username} is logged in</h1>
       <button onClick={handleLogout}>logout</button>
       {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} handleLike={handleLike}/>
       ))}
     </div>
   );
 
+  const handleLike = async (id) => {
+    // Find blog with the passed in id
+    const blog = blogs.find((b) => b.id === id);
+    console.log(id)
+    // Create a new blog object, use spread operator to take all of FOUND blog current attributes, but change the likes to current likes + 1
+    const updatedBlog = { ...blog, likes: blog.likes + 1 };
 
+    const returnedBlog = await blogService.update(id, updatedBlog)
+    setBlogs(blogs.map(blog => blog.id !== id ? blog : returnedBlog))
+  };
 
   const blogForm = () => {
     const hideWhenVisible = { display: blogFormVisible ? "none" : "" };
@@ -106,14 +114,16 @@ const App = () => {
       <>
         <h3 style={{ text: "green" }}>{notification}</h3>
         <div style={hideWhenVisible}>
-          <button onClick={() => setBlogFormVisible(true)}>create new blog</button>
+          <button onClick={() => setBlogFormVisible(true)}>
+            create new blog
+          </button>
         </div>
         <div style={showWhenVisible}>
-          <NewBlog 
-          notification={notification}
-          setBlogFormVisible={setBlogFormVisible}
-          setNotification={setNotification}
-          setBlogs={setBlogs}
+          <NewBlog
+            notification={notification}
+            setBlogFormVisible={setBlogFormVisible}
+            setNotification={setNotification}
+            setBlogs={setBlogs}
           />
           <button onClick={() => setBlogFormVisible(false)}>cancel</button>
         </div>
