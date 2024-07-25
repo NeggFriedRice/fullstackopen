@@ -1,7 +1,8 @@
 import { useState } from "react";
 import axios from 'axios'
+import PropTypes from 'prop-types'
 
-const Blog = ({ blog, handleLike }) => {
+const Blog = ({ blog, handleLike, handleDelete }) => {
   const [fullView, setFullView] = useState(false);
 
   const showFullView = { display: fullView ? "none" : "" };
@@ -29,9 +30,17 @@ const Blog = ({ blog, handleLike }) => {
         <div>{blog.author}</div>
         <div>{blog.url}</div>
         <div>{blog.likes} likes <button onClick={() => handleLike(blog.id)}>like</button></div>
+        <p>authored by: {blog.user && blog.user.name}</p>
+        <button onClick={() => handleDelete(blog.id)}>remove</button>
       </div>
+
     </div>
   );
 };
+
+Blog.propTypes = {
+  handleLike: PropTypes.func.isRequired,
+  handleDelete: PropTypes.func.isRequired
+}
 
 export default Blog;

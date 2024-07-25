@@ -90,7 +90,7 @@ const App = () => {
       <h1>{user.username} is logged in</h1>
       <button onClick={handleLogout}>logout</button>
       {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} handleLike={handleLike}/>
+        <Blog key={blog.id} blog={blog} handleLike={handleLike} handleDelete={handleDelete} />
       ))}
     </div>
   );
@@ -98,13 +98,24 @@ const App = () => {
   const handleLike = async (id) => {
     // Find blog with the passed in id
     const blog = blogs.find((b) => b.id === id);
-    console.log(id)
+    console.log(id);
+    console.log(blog.user.id)
     // Create a new blog object, use spread operator to take all of FOUND blog current attributes, but change the likes to current likes + 1
-    const updatedBlog = { ...blog, likes: blog.likes + 1 };
+    const updatedBlog = { ...blog, likes: blog.likes + 1, user: blog.user.id };
 
-    const returnedBlog = await blogService.update(id, updatedBlog)
-    setBlogs(blogs.map(blog => blog.id !== id ? blog : returnedBlog))
+    const returnedBlog = await blogService.update(id, updatedBlog);
+    setBlogs(blogs
+      .map(blog => blog.id !== id ? blog : returnedBlog)
+      .sort((a, b) => b.likes - a.likes))
   };
+
+  const handleDelete = async (id) => {
+    console.log("Deleting ", id)
+    if (window.confirm('Are you sure you want to delete this blog?')) {
+      await blogService.remove(id)
+      setBlogs(blogs.filter(blog => blog.id !== id))
+    }
+  }
 
   const blogForm = () => {
     const hideWhenVisible = { display: blogFormVisible ? "none" : "" };
