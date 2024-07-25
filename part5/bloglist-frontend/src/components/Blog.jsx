@@ -1,6 +1,6 @@
 import { useState } from "react";
-import axios from 'axios'
-import PropTypes from 'prop-types'
+import axios from "axios";
+import PropTypes from "prop-types";
 
 const Blog = ({ blog, handleLike, handleDelete }) => {
   const [fullView, setFullView] = useState(false);
@@ -16,31 +16,35 @@ const Blog = ({ blog, handleLike, handleDelete }) => {
     marginBottom: 5,
   };
 
-
   return (
-    <div style={blogStyle}>
-      {blog.title}
+    <div style={blogStyle} className="blog">
+      <p className="blogTitleAuthor">
+        {blog.title} {blog.author}
+      </p>
+
       <button onClick={() => setFullView(true)} style={showFullView}>
         view
       </button>
       <button onClick={() => setFullView(false)} style={hideFullView}>
         hide
       </button>
-      <div style={hideFullView}>
-        <div>{blog.author}</div>
-        <div>{blog.url}</div>
-        <div>{blog.likes} likes <button onClick={() => handleLike(blog.id)}>like</button></div>
+      <div style={hideFullView} className="blogDetails">
+        <p>{blog.author}</p>
+        <p>{blog.url}</p>
+        <div>
+          likes: {blog.likes}
+          <button onClick={() => handleLike(blog.id)}>like</button>
+        </div>
         <p>authored by: {blog.user && blog.user.name}</p>
         <button onClick={() => handleDelete(blog.id)}>remove</button>
       </div>
-
     </div>
   );
 };
 
 Blog.propTypes = {
   handleLike: PropTypes.func.isRequired,
-  handleDelete: PropTypes.func.isRequired
-}
+  handleDelete: PropTypes.func.isRequired,
+};
 
 export default Blog;
